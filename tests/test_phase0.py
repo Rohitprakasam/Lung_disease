@@ -1,6 +1,7 @@
 import os
 import io
 import pytest
+import numpy as np
 from PIL import Image
 from config import Config
 from Classes.Web_Model import Web_Model
@@ -20,7 +21,7 @@ def test_web_model_predict_with_probs():
     model_path = os.path.join(os.path.dirname(__file__), "..", "runs", "best_weight.h5")
     model = Web_Model(model_path, ['COVID-19', 'NORMAL', 'PNEUMONIA', 'TUBERCULOSIS'])
     
-    # Create synthetic test image
+    # Create test image
     img = Image.new("RGB", (224, 224), color=(100, 150, 200))
     pred1, conf1, probs1 = model.predict_with_probs(img)
     pred2, conf2, probs2 = model.predict_with_probs(img)
@@ -38,7 +39,9 @@ def test_web_model_predict_with_probs():
     assert pred1 in ['COVID-19', 'NORMAL', 'PNEUMONIA', 'TUBERCULOSIS']
 
 def test_safe_upload_filename(client):
-    img = Image.new("RGB", (224, 224), color=(50, 50, 50))
+    # Create realistic contrast grayscale image
+    arr = np.random.randint(40, 210, size=(224, 224), dtype=np.uint8)
+    img = Image.fromarray(arr).convert("RGB")
     img_bytes = io.BytesIO()
     img.save(img_bytes, format='PNG')
     img_bytes.seek(0)
@@ -63,6 +66,21 @@ def test_safe_upload_filename(client):
     assert not os.path.exists('../../evil.png')
     assert not os.path.exists('../evil.png')
 
+def test_invalid_image_pre_gate_rejection(client):
+    # Blank image with zero contrast
+    blank_img = Image.new("RGB", (224, 224), color=(80, 80, 80))
+    img_bytes = io.BytesIO()
+    blank_img.save(img_bytes, format='PNG')
+    img_bytes.seek(0)
+
+    data = {
+        'image': (img_bytes, 'blank.png'),
+        'id': 'TEST-INVALID'
+    }
+    response = client.post('/api/predict', data=data, content_type='multipart/form-data')
+    assert response.status_code == 422
+    assert "Invalid X-Ray" in response.get_json().get("error", "")
+
 def test_disallowed_extension(client):
     data = {
         'image': (io.BytesIO(b'fake script content'), 'script.sh'),
@@ -71,4 +89,3 @@ def test_disallowed_extension(client):
     response = client.post('/api/predict', data=data, content_type='multipart/form-data')
     assert response.status_code == 400
     assert "Unsupported file type" in response.get_json().get("error", "")
-
