@@ -3,6 +3,9 @@ __pycache__/
 *.pyc
 venv/
 .env
+.pytest_cache/
+*.db
+*.db.bak*
 
 # Node.js
 node_modules/
@@ -14,6 +17,7 @@ build/
 # Project Specific
 static/uploads/
 static/reports/
+storage/
 .gemini/
 .idea/
 .vscode/
