@@ -8,33 +8,6 @@ import os
 import time
 
 class ReportGenerator:
-    PRECAUTIONS = {
-        "COVID-19": [
-            "Isolate immediately to prevent spread.",
-            "Monitor oxygen levels regularly.",
-            "Consult a doctor for antiviral medication.",
-            "Rest and stay hydrated."
-        ],
-        "PNEUMONIA": [
-            "Complete the full course of antibiotics if prescribed.",
-            "Drink plenty of fluids to loosen secretions.",
-            "Use a humidifier to keep air moist.",
-            "Rest and avoid strenuous activity."
-        ],
-        "TUBERCULOSIS": [
-            "Strictly adhere to the long-term medication regimen.",
-            "Ensure good ventilation in living spaces.",
-            "Cover mouth while coughing to protect others.",
-            "Eat a nutritious diet to boost immunity."
-        ],
-        "NORMAL": [
-            "Maintain a healthy lifestyle.",
-            "Avoid smoking and pollutants.",
-            "Exercise regularly to improve lung capacity.",
-            "Go for regular health check-ups."
-        ]
-    }
-
     @staticmethod
     def generate_graph(probabilities, output_path):
         """
@@ -137,30 +110,16 @@ class ReportGenerator:
             
             c.setFillColor(colors.black)
 
-            # --- Images ---
-            y_pos -= 240
-            # X-Ray Image
+            # --- Images (Enhanced X-Ray & Probability Analysis) ---
+            y_pos -= 250
             if os.path.exists(image_path):
                 c.drawImage(image_path, 50, y_pos, width=250, height=200, preserveAspectRatio=True)
                 c.setFont("Helvetica-Oblique", 10)
                 c.drawString(50, y_pos - 15, "Enhanced X-Ray Scan")
 
-            # Probability Graph
             if graph_path and os.path.exists(graph_path):
                 c.drawImage(graph_path, 320, y_pos, width=250, height=200, preserveAspectRatio=True)
                 c.drawString(320, y_pos - 15, "Probability Analysis")
-
-            # --- Precautions ---
-            y_pos -= 45
-            c.setFont("Helvetica-Bold", 14)
-            c.drawString(50, y_pos, "Recommended Precautions")
-            y_pos -= 22
-            c.setFont("Helvetica", 11)
-            
-            precautions = ReportGenerator.PRECAUTIONS.get(prediction, ["Consult a medical specialist."])
-            for i, p in enumerate(precautions, 1):
-                c.drawString(50, y_pos, f"{i}. {p}")
-                y_pos -= 18
 
             # --- Footer ---
             c.setFont("Helvetica-Oblique", 8)
