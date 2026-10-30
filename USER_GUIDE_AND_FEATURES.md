@@ -216,3 +216,4 @@ Simply stop the backend server and run:
 python seed_demo.py
 ```
 The script will ensure all tables exist and restore the seeded medical centers, clinicians, and multi-center patient scans.
+

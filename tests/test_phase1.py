@@ -81,3 +81,30 @@ def test_analyze_and_render_panels(twin_instance, tmp_path):
     assert os.path.exists(panels["diff_path"])
     assert os.path.exists(panels["triptych_path"])
 
+
+
+def test_report_generator_omits_twin_page(tmp_path):
+    import re
+    from Classes.ReportGenerator import ReportGenerator
+
+    img_path = str(tmp_path / "scan.png")
+    Image.new("RGB", (100, 100), color="white").save(img_path)
+    out_pdf = str(tmp_path / "report.pdf")
+
+    patient = {"name": "Test Patient", "id": "PT-001", "age": "45", "gender": "F"}
+    twin_data = {
+        "valid": True,
+        "abnormality_index": 75,
+        "status": "consistent_disease",
+        "message": "Abnormal scan",
+        "images": {"triptych": img_path}
+    }
+
+    ReportGenerator.generate_pdf(patient, "COVID-19", 0.92, {"COVID-19": 0.92}, img_path, img_path, out_pdf, twin=twin_data)
+
+    assert os.path.exists(out_pdf)
+    with open(out_pdf, "rb") as f:
+        data = f.read()
+    page_count = len(re.findall(rb"/Type\s*/Page\b", data))
+    assert page_count == 1
+    assert b"AI Visual Analysis" not in data
