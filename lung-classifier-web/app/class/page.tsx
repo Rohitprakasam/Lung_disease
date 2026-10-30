@@ -231,13 +231,6 @@ export default function ClassifyPage() {
                                         <img src={twin.images.diff} alt="Difference Heatmap" className="rounded border border-gray-700 w-full h-36 object-contain bg-black" />
                                     </div>
                                 </div>
-
-                                <p className="text-sm font-semibold text-green-300 mb-1">
-                                    {twin.message}
-                                </p>
-                                <p className="text-[10px] text-gray-500 italic">
-                                    * AI-generated reference, not a diagnosis.
-                                </p>
                             </div>
                         )}
 
